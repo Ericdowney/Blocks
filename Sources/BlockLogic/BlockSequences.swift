@@ -27,6 +27,12 @@ public struct BlockSequence<SequenceInput, SequenceOutput>: Block, ExpressibleBy
                 switch result {
                 case .done(let nextInput):
                     try run(at: index + 1, nextInput, completion)
+                case .break(let output):
+                    if let output = output as? SequenceOutput {
+                        try completion(.done(output))
+                    } else {
+                        throw BlockError.unmatchedOutputTypes
+                    }
                 case .failed(let error):
                     try completion(.failed(error))
                 }
@@ -81,6 +87,12 @@ public struct StateBlockSequence<State: BlockState, SequenceInput, SequenceOutpu
                 switch result {
                 case .done(let nextInput):
                     try run(at: index + 1, nextInput, completion)
+                case .break(let output):
+                    if let output = output as? SequenceOutput {
+                        try completion(.done(output))
+                    } else {
+                        throw BlockError.unmatchedOutputTypes
+                    }
                 case .failed(let error):
                     try completion(.failed(error))
                 }
@@ -90,6 +102,12 @@ public struct StateBlockSequence<State: BlockState, SequenceInput, SequenceOutpu
                 switch result {
                 case .done(let nextInput):
                     try run(at: index + 1, nextInput, completion)
+                case .break(let output):
+                    if let output = output as? SequenceOutput {
+                        try completion(.done(output))
+                    } else {
+                        throw BlockError.unmatchedOutputTypes
+                    }
                 case .failed(let error):
                     try completion(.failed(error))
                 }

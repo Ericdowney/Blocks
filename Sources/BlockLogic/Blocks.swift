@@ -30,6 +30,8 @@ extension Block {
                 switch result {
                 case .done(let output):
                     try completion(.done(output))
+                case .break(let output):
+                    try completion(.break(output))
                 case .failed(let error):
                     try completion(.failed(error))
                 }
@@ -49,6 +51,8 @@ extension StateBlock {
                 switch result {
                 case .done(let output):
                     try completion(.done(output))
+                case .break(let output):
+                    try completion(.break(output))
                 case .failed(let error):
                     try completion(.failed(error))
                 }

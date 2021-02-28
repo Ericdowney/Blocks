@@ -14,6 +14,8 @@ final class BlockStatefulFlowTests: XCTestCase {
             switch result {
             case .done(let result):
                 XCTAssertEqual(result, 92)
+            case .break(_):
+                XCTFail()
             case .failed(let error):
                 XCTFail(error?.localizedDescription ?? "")
             }
@@ -30,6 +32,8 @@ final class BlockStatefulFlowTests: XCTestCase {
             switch result {
             case .done(let result):
                 XCTAssertEqual(result, 176)
+            case .break(_):
+                XCTFail()
             case .failed(let error):
                 XCTFail(error?.localizedDescription ?? "")
             }
@@ -48,6 +52,8 @@ final class BlockStatefulFlowTests: XCTestCase {
             switch result {
             case .done(let result):
                 XCTAssertEqual(result, 380)
+            case .break(_):
+                XCTFail()
             case .failed(let error):
                 XCTFail(error?.localizedDescription ?? "")
             }
@@ -66,6 +72,8 @@ final class BlockStatefulFlowTests: XCTestCase {
             switch result {
             case .done(let result):
                 XCTAssertEqual(result, 84)
+            case .break(_):
+                XCTFail()
             case .failed(let error):
                 XCTFail(error?.localizedDescription ?? "")
             }
@@ -82,6 +90,8 @@ final class BlockStatefulFlowTests: XCTestCase {
             switch result {
             case .done(_):
                 XCTFail()
+            case .break(_):
+                XCTFail()
             case .failed(let error):
                 XCTAssertNotNil(error)
             }
@@ -97,6 +107,8 @@ final class BlockStatefulFlowTests: XCTestCase {
         try subject.run(2) { result in
             switch result {
             case .done(_):
+                XCTFail()
+            case .break(_):
                 XCTFail()
             case .failed(let error):
                 XCTAssertNotNil(error)

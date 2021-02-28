@@ -12,6 +12,8 @@ final class BlockStateLessFlowTests: XCTestCase {
             switch result {
             case .done(let result):
                 XCTAssertEqual(result, 18)
+            case .break(_):
+                XCTFail()
             case .failed(let error):
                 XCTFail(error?.localizedDescription ?? "")
             }
@@ -29,6 +31,8 @@ final class BlockStateLessFlowTests: XCTestCase {
             switch result {
             case .done(let result):
                 XCTAssertEqual(result, 26)
+            case .break(_):
+                XCTFail()
             case .failed(let error):
                 XCTFail(error?.localizedDescription ?? "")
             }
@@ -44,6 +48,8 @@ final class BlockStateLessFlowTests: XCTestCase {
             switch result {
             case .done(let result):
                 XCTAssertEqual(result, "18-123")
+            case .break(_):
+                XCTFail()
             case .failed(let error):
                 XCTFail(error?.localizedDescription ?? "")
             }
@@ -59,6 +65,8 @@ final class BlockStateLessFlowTests: XCTestCase {
             switch result {
             case .done(_):
                 XCTFail()
+            case .break(_):
+                XCTFail()
             case .failed(let error):
                 XCTAssertNotNil(error)
             }
@@ -73,6 +81,8 @@ final class BlockStateLessFlowTests: XCTestCase {
         try subject.run(2) { result in
             switch result {
             case .done(_):
+                XCTFail()
+            case .break(_):
                 XCTFail()
             case .failed(let error):
                 XCTAssertNotNil(error)
