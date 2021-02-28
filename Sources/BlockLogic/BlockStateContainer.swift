@@ -1,5 +1,5 @@
 
-public protocol BlockState {}
+public protocol BlockState: ExpressibleByNilLiteral {}
 
 public protocol StateContainer {
     associatedtype State: BlockState

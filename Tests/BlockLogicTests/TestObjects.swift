@@ -40,23 +40,30 @@ struct ConcatenateStringBlock: Block {
 
 // MARK: - Stateful Blocks
 
-struct TestState: BlockState {
+struct TestState: BlockState, ExpressibleByNilLiteral {
     var multiplier: Int = 2
+    
+    init() { self = nil }
+    init(nilLiteral: ()) {}
 }
 
-struct Add4StateBlock: Block {
+struct Add4StateBlock: StateBlock {
     typealias Output = Int
     
-    func run(_ input: BlockStateContainer<TestState, Int>, _ completion: @escaping Completion) throws {
-        try completion(.done(input.value * input.state.multiplier + 4))
+    var _state: AssuredValue<TestState> = .init()
+    
+    func run(_ input: Int, _ completion: @escaping Completion) throws {
+        try completion(.done(input * state.multiplier + 4))
     }
 }
 
-struct StringToIntStateBlock: Block {
+struct StringToIntStateBlock: StateBlock {
     typealias Output = Int
     
-    func run(_ input: BlockStateContainer<TestState, String>, _ completion: @escaping Completion) throws {
-        guard let result = Int(input.value) else {
+    var _state: AssuredValue<TestState> = .init()
+    
+    func run(_ input: String, _ completion: @escaping Completion) throws {
+        guard let result = Int(input) else {
             return try completion(.failed(nil))
         }
         try completion(.done(result))

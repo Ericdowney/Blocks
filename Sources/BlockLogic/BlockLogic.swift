@@ -12,6 +12,19 @@ public protocol Block {
     func run(_ input: Input, _ completion: @escaping Completion) throws
 }
 
+public protocol StateBlock: Block {
+    associatedtype State
+    
+    var _state: AssuredValue<State> { get }
+}
+
+public extension StateBlock {
+    
+    var state: State {
+        _state.wrappedValue
+    }
+}
+
 extension Block {
     
     func eraseToAnyBlock() -> AnyBlock {
@@ -30,17 +43,17 @@ extension Block {
     }
 }
 
-extension Block where Input: StateContainer {
+extension StateBlock {
     
-    func eraseToAnyBlockWithContainer() -> AnyBlock {
-        AnyBlock { input, completion in
+    func eraseToAnyStateBlock() -> AnyStateBlock {
+        AnyStateBlock { state, input, completion in
             guard let nextInput = input as? Input else { throw BlockError.unmatchedInputTypes }
+            self._state.wrappedValue = state as? State
             
             try run(nextInput) { result in
-                print("Result", result)
                 switch result {
                 case .done(let output):
-                    try completion(.done(BlockStateContainer(state: nextInput.state, value: output)))
+                    try completion(.done(output))
                 case .failed(let error):
                     try completion(.failed(error))
                 }
@@ -63,6 +76,26 @@ public struct AnyBlock: Block {
     
     public func run(_ input: Any, _ completion: @escaping (BlockResult<Any>) throws -> Void) throws {
         try block(input, completion)
+    }
+}
+
+public struct AnyStateBlock: StateBlock {
+    
+    public internal(set) var _state: AssuredValue<Any>
+    private var block: (Any, Any, @escaping (BlockResult<Any>) throws -> Void) throws -> Void
+    
+    public init(block: @escaping (Any, Any, @escaping (BlockResult<Any>) throws -> Void) throws -> Void) {
+        self._state = .init()
+        self.block = block
+    }
+    
+    public init(state: Any, block: @escaping (Any, Any, @escaping (BlockResult<Any>) throws -> Void) throws -> Void) {
+        self._state = .init(state)
+        self.block = block
+    }
+    
+    public func run(_ input: Any, _ completion: @escaping (BlockResult<Any>) throws -> Void) throws {
+        try block(_state.wrappedValue as Any, input, completion)
     }
 }
 
@@ -107,6 +140,52 @@ public struct BlockSequence<SequenceInput, SequenceOutput>: Block, ExpressibleBy
     }
 }
 
+public struct StateBlockSequence<State: BlockState, SequenceInput, SequenceOutput>: StateBlock, ExpressibleByArrayLiteral {
+    
+    public private(set) var _state: AssuredValue<State>
+    var blocks: [AnyStateBlock]
+    
+    public init(arrayLiteral elements: AnyStateBlock...) {
+        self._state = .init()
+        self.blocks = elements
+    }
+    
+    public init(_ state: State, _ elements: [AnyStateBlock] = []) {
+        self._state = .init(state)
+        self.blocks = elements
+    }
+    
+    public mutating func append<B: StateBlock>(_ block: B) {
+        blocks.append(block.eraseToAnyStateBlock())
+    }
+    
+    public func run(_ input: SequenceInput, _ completion: @escaping (BlockResult<SequenceOutput>) throws -> Void) throws {
+        guard blocks.count > 0 else { throw BlockError.emptyBlockSequence }
+        blocks.forEach { $0._state.wrappedValue = _state.wrappedValue }
+        
+        print("State", _state)
+        try run(at: 0, input, completion)
+    }
+    
+    private func run(at index: Int, _ nextInput: Any, _ completion: @escaping (BlockResult<SequenceOutput>) throws -> Void) throws {
+        if let block = blocks.value(at: index) {
+            print("Block State", block._state)
+            try block.run(nextInput) { result in
+                switch result {
+                case .done(let nextInput):
+                    try run(at: index + 1, nextInput, completion)
+                case .failed(let error):
+                    try completion(.failed(error))
+                }
+            }
+        } else if let output = nextInput as? SequenceOutput {
+            try completion(.done(output))
+        } else {
+            throw BlockError.unmatchedOutputTypes
+        }
+    }
+}
+
 fileprivate extension Array {
     func value(at index: Index) -> Element? {
         guard index >= 0 && index < endIndex else { return nil }
@@ -120,14 +199,14 @@ func --><Input, Output, B: Block>(sequence: BlockSequence<Input, Output>, nextBl
     BlockSequence<Input, Output>(sequence.blocks + [nextBlock.eraseToAnyBlock()])
 }
 
-func --><B1: Block, B2: Block, Input, Output>(previousBlock: B1, nextBlock: B2) -> BlockSequence<Input, Output> {
+func --><B1: Block, B2: Block, Input, Output>(previousBlock: B1, nextBlock: B2) -> BlockSequence<Input, Output> where B1.Output == B2.Input {
     BlockSequence<Input, Output>([previousBlock.eraseToAnyBlock(), nextBlock.eraseToAnyBlock()])
 }
 
-func --><Input, Output, B: Block>(sequence: BlockSequence<Input, Output>, nextBlock: B) -> BlockSequence<Input, Output> where B.Input: StateContainer {
-    BlockSequence<Input, Output>(sequence.blocks + [nextBlock.eraseToAnyBlockWithContainer()])
+func --><Input, Output, B: StateBlock>(sequence: StateBlockSequence<B.State, Input, Output>, nextBlock: B) -> StateBlockSequence<B.State, Input, Output> {
+    StateBlockSequence<B.State, Input, Output>(nil, sequence.blocks + [nextBlock.eraseToAnyStateBlock()])
 }
 
-func --><B1: Block, B2: Block, Input, Output>(previousBlock: B1, nextBlock: B2) -> BlockSequence<Input, Output> where B1.Input: StateContainer, B2.Input: StateContainer {
-    BlockSequence<Input, Output>([previousBlock.eraseToAnyBlockWithContainer(), nextBlock.eraseToAnyBlockWithContainer()])
+func --><B1: StateBlock, B2: StateBlock, Input, Output>(previousBlock: B1, nextBlock: B2) -> StateBlockSequence<B1.State, Input, Output> where B1.Output == B2.Input, B1.State == B2.State {
+    StateBlockSequence<B1.State, Input, Output>(nil, [previousBlock.eraseToAnyStateBlock(), nextBlock.eraseToAnyStateBlock()])
 }

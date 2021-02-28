@@ -57,7 +57,7 @@ final class BlockStateLessFlowTests: XCTestCase {
     
     func test_run_whenInputTypesDoNotMatch_shouldThrowError() throws {
         let subject: BlockStatelessFlow<Int, Int> = BlockStatelessFlow(
-            sequence: Add4Block() --> StringToIntBlock() --> Add4Block() --> Add4Block()
+            sequence: [Add4Block().eraseToAnyBlock(), StringToIntBlock().eraseToAnyBlock(), Add4Block().eraseToAnyBlock(), Add4Block().eraseToAnyBlock()]
         )
         
         do {
