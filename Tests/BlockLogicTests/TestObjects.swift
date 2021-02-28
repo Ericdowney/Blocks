@@ -1,4 +1,5 @@
 
+import Foundation
 import BlockLogic
 
 // MARK: - StateLess Blocks
@@ -38,6 +39,22 @@ struct ConcatenateStringBlock: Block {
     }
 }
 
+struct IntFailWithErrorBlock: Block {
+    typealias Output = String
+    
+    func run(_ input: Int, _ completion: @escaping Completion) throws {
+        try completion(.failed(NSError(domain: "", code: 0, userInfo: nil)))
+    }
+}
+
+struct IntFailWithoutErrorBlock: Block {
+    typealias Output = String
+    
+    func run(_ input: Int, _ completion: @escaping Completion) throws {
+        try completion(.failed(nil))
+    }
+}
+
 // MARK: - Stateful Blocks
 
 struct TestState: BlockState, ExpressibleByNilLiteral {
@@ -67,5 +84,25 @@ struct StringToIntStateBlock: StateBlock {
             return try completion(.failed(nil))
         }
         try completion(.done(result))
+    }
+}
+
+struct IntFailWithErrorStateBlock: StateBlock {
+    typealias Output = String
+    
+    var _state: AssuredValue<TestState> = .init()
+    
+    func run(_ input: Int, _ completion: @escaping Completion) throws {
+        try completion(.failed(NSError(domain: "", code: 0, userInfo: nil)))
+    }
+}
+
+struct IntFailWithoutErrorStateBlock: StateBlock {
+    typealias Output = String
+    
+    var _state: AssuredValue<TestState> = .init()
+    
+    func run(_ input: Int, _ completion: @escaping Completion) throws {
+        try completion(.failed(nil))
     }
 }

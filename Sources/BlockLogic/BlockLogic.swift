@@ -62,7 +62,7 @@ extension StateBlock {
     }
 }
 
-enum BlockError: Error {
+public enum BlockError: Error {
     case emptyBlockSequence, unmatchedInputTypes, unmatchedOutputTypes
 }
 
@@ -123,7 +123,6 @@ public struct BlockSequence<SequenceInput, SequenceOutput>: Block, ExpressibleBy
     
     private func run(at index: Int, _ nextInput: Any, _ completion: @escaping (BlockResult<SequenceOutput>) throws -> Void) throws {
         if let block = blocks.value(at: index) {
-            print("Input", nextInput)
             try block.run(nextInput) { result in
                 switch result {
                 case .done(let nextInput):
@@ -163,13 +162,11 @@ public struct StateBlockSequence<State: BlockState, SequenceInput, SequenceOutpu
         guard blocks.count > 0 else { throw BlockError.emptyBlockSequence }
         blocks.forEach { $0._state.wrappedValue = _state.wrappedValue }
         
-        print("State", _state)
         try run(at: 0, input, completion)
     }
     
     private func run(at index: Int, _ nextInput: Any, _ completion: @escaping (BlockResult<SequenceOutput>) throws -> Void) throws {
         if let block = blocks.value(at: index) {
-            print("Block State", block._state)
             try block.run(nextInput) { result in
                 switch result {
                 case .done(let nextInput):

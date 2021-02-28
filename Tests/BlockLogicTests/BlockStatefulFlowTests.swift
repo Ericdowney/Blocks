@@ -20,6 +20,38 @@ final class BlockStatefulFlowTests: XCTestCase {
         }
     }
     
+    func test_run_whenSequenceFails_shouldFailWithError() throws {
+        let subject: BlockStatefulFlow<TestState, Int, Int> = BlockStatefulFlow(
+            state: .init(),
+            sequence: Add4StateBlock() --> Add4StateBlock() --> Add4StateBlock() --> Add4StateBlock() --> IntFailWithErrorStateBlock()
+        )
+        
+        try subject.run(2) { result in
+            switch result {
+            case .done(_):
+                XCTFail()
+            case .failed(let error):
+                XCTAssertNotNil(error)
+            }
+        }
+    }
+    
+    func test_run_whenSequenceFails_shouldFailWithoutError() throws {
+        let subject: BlockStatefulFlow<TestState, Int, Int> = BlockStatefulFlow(
+            state: .init(),
+            sequence: Add4StateBlock() --> Add4StateBlock() --> Add4StateBlock() --> Add4StateBlock() --> IntFailWithErrorStateBlock()
+        )
+        
+        try subject.run(2) { result in
+            switch result {
+            case .done(_):
+                XCTFail()
+            case .failed(let error):
+                XCTAssertNotNil(error)
+            }
+        }
+    }
+    
     func test_run_whenSequenceIsEmpty_shouldThrowError() {
         let subject: BlockStatefulFlow<TestState, Int, Int> = BlockStatefulFlow(
             state: .init(),
