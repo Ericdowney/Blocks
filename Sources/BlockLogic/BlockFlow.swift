@@ -1,6 +1,4 @@
 
-import Foundation
-
 public struct BlockStatefulFlow<State: BlockState, Input, Output>: StateBlock {
     
     // MARK: - Properties

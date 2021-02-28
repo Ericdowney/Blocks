@@ -1,6 +1,4 @@
 
-import Foundation
-
 @propertyWrapper
 public final class AssuredValue<Value> {
     
