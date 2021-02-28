@@ -2,7 +2,6 @@
 
 This is a prototype framework to create blocks of reusable logic similar to SwiftUI Views or React Components.
 
-
 ## Examples:
 
 ### Without Blocks
@@ -32,13 +31,13 @@ This will only focus on the "Create Account" screen and the logic required to cr
                     -> Persist token to local storage
                     -> get:authenticated:/api/profile
                         -> onSuccess
-                            -> fail with profile
+                            -> Complete with profile
                         -> onFailure
-                            -> fail with error
+                            -> Fail with error
                 -> onFailure
-                    -> fail with error
+                    -> Fail with error
         -> onFailure
-            -> fail with error
+            -> Fail with error
 
 The above is psudocode for the `createNewUser` method. If we were to then move on to the returning user flow, we would have to write a `LoginService` that duplicated this logic except for the `post:/api/create` step. Any attempt to reuse this logic would require creating a separate Utility class that handles the login part, except that would then take all the responsibility away from the `LoginService`. The `CreateAccountService` could use a `LoginService`, except that is odd architecturally since they are at the same layer and one should not be dependent on the other.
 
@@ -52,9 +51,9 @@ The above is psudocode for the `createNewUser` method. If we were to then move o
 
     -> post:/api/create
         -> onSuccess
-            -> complete
+            -> Complete
         -> onFailure
-            -> fail with error
+            -> Fail with error
     
 `AccessTokenSequence`
 
@@ -63,20 +62,21 @@ The above is psudocode for the `createNewUser` method. If we were to then move o
     `GetAccessTokenBlock`
         -> post:/api/access_token
             -> onSuccess
-                -> complete with token
+                -> Complete with token
             -> onFailure
-                -> fail with error
+                -> Fail with error
     
     `PersistAccessTokenBlock`
         -> Persist token to local storage
+        -> Complete with token
     
 `GetUserProfileBlock`
 
     -> get:authenticated:/api/profile
         -> onSuccess
-            -> fail with profile
+            -> Complete with profile
         -> onFailure
-            -> fail with error
+            -> Fail with error
 
 `CreateAccountSequence`
 
@@ -92,4 +92,10 @@ Now that this flow is using Blocks, here is the login flow:
 
     -> AccessTokenSequence -> GetUserProfileBlock
 
-The logic of the application required no modifications to add an entire new flow for logging a user into the app.
+The logic of the application required no modifications to add an entire new flow for logging a user into the app. The flow for the `CreateAccountSequence` can be updated to be even simpler.
+
+`CreateAccountSequence`
+
+    -> CreateNewUserBlock -> LoginSequence
+
+This way, any updates to `LoginSequence` would then be automatically picked up by the `CreateAccountSequence`
