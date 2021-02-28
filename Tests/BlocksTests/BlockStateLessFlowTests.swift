@@ -2,6 +2,8 @@ import XCTest
 @testable import Blocks
 
 final class BlockStateLessFlowTests: XCTestCase {
+    
+    // MARK: - Tests
         
     func test_run_whenTypesMatch_shouldOutputTheCorrectResult() throws {
         let subject: BlockStatelessFlow<Int, Int> = BlockStatelessFlow(
@@ -160,4 +162,19 @@ final class BlockStateLessFlowTests: XCTestCase {
             XCTAssertEqual(error as? BlockError, .unmatchedInputTypes)
         }
     }
+    
+    // MARK: - Test Registration
+    
+    static var allTests = [
+        ("test_run_whenTypesMatch_shouldOutputTheCorrectResult", test_run_whenTypesMatch_shouldOutputTheCorrectResult),
+        ("test_run_whenMultipleSequencesAreConnected_shouldOutputTheCorrectResult", test_run_whenMultipleSequencesAreConnected_shouldOutputTheCorrectResult),
+        ("test_run_whenMultipleTypeBlocksExist_shouldOutputTheCorrectResult", test_run_whenMultipleTypeBlocksExist_shouldOutputTheCorrectResult),
+        ("test_run_whenBlockBreaksEarly_sholdOutputCorrectResult", test_run_whenBlockBreaksEarly_sholdOutputCorrectResult),
+        ("test_run_whenBlockBreaksEarlyInInnerSequence_sholdOutputCorrectResult", test_run_whenBlockBreaksEarlyInInnerSequence_sholdOutputCorrectResult),
+        ("test_run_whenSequenceFails_shouldFailWithError", test_run_whenSequenceFails_shouldFailWithError),
+        ("test_run_whenSequenceFails_shouldFailWithoutError", test_run_whenSequenceFails_shouldFailWithoutError),
+        ("test_run_whenSequenceIsEmpty_shouldThrowError", test_run_whenSequenceIsEmpty_shouldThrowError),
+        ("test_run_whenOutputTypesDoNotMatch_shouldThrowError", test_run_whenOutputTypesDoNotMatch_shouldThrowError),
+        ("test_run_whenInputTypesDoNotMatch_shouldThrowError", test_run_whenInputTypesDoNotMatch_shouldThrowError),
+    ]
 }

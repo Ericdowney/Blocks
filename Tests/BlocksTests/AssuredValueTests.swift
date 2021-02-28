@@ -4,6 +4,8 @@ import Blocks
 
 final class AssuredValueTests: XCTestCase {
     
+    // MARK: - Tests
+    
     func test_whenValueExists_shouldCreateAssuredValue() {
         let subject = AssuredValue(3)
         
@@ -18,4 +20,11 @@ final class AssuredValueTests: XCTestCase {
         XCTAssertNil(subject.wrappedValue)
         XCTAssertEqual(subject.description, "AssuredValue<Int>: nil")
     }
+    
+    // MARK: - Test Registration
+    
+    static var allTests = [
+        ("test_whenValueExists_shouldCreateAssuredValue", test_whenValueExists_shouldCreateAssuredValue),
+        ("test_whenValueDoesNotExist_shouldCreateAssuredValue", test_whenValueDoesNotExist_shouldCreateAssuredValue),
+    ]
 }

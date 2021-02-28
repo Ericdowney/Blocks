@@ -4,6 +4,8 @@ import XCTest
 
 final class BlockStatefulFlowTests: XCTestCase {
     
+    // MARK: - Tests
+    
     func test_run_whenTypesMatch_shouldOutputTheCorrectResult() throws {
         let subject = BlockStatefulFlow<TestState, Int, Int>(
             state: .init(),
@@ -193,4 +195,20 @@ final class BlockStatefulFlowTests: XCTestCase {
             XCTAssertEqual(error as? BlockError, .unmatchedInputTypes)
         }
     }
+    
+    // MARK: - Test Registration
+    
+    static var allTests = [
+        ("test_run_whenTypesMatch_shouldOutputTheCorrectResult", test_run_whenTypesMatch_shouldOutputTheCorrectResult),
+        ("test_run_whenMixingStatefulAndStatelessBlocks_shouldOutputTheCorrectResult", test_run_whenMixingStatefulAndStatelessBlocks_shouldOutputTheCorrectResult),
+        ("test_run_whenMultipleSequencesAreConnected_shouldOutputTheCorrectResult", test_run_whenMultipleSequencesAreConnected_shouldOutputTheCorrectResult),
+        ("test_run_whenMultipleSequencesAreConnected_andSequencesAreMixedStatefulAndStateless_shouldOutputTheCorrectResult", test_run_whenMultipleSequencesAreConnected_andSequencesAreMixedStatefulAndStateless_shouldOutputTheCorrectResult),
+        ("test_run_whenBlockBreaksEarly_sholdOutputCorrectResult", test_run_whenBlockBreaksEarly_sholdOutputCorrectResult),
+        ("test_run_whenBlockBreaksEarlyInInnerSequence_sholdOutputCorrectResult", test_run_whenBlockBreaksEarlyInInnerSequence_sholdOutputCorrectResult),
+        ("test_run_whenSequenceFails_shouldFailWithError", test_run_whenSequenceFails_shouldFailWithError),
+        ("test_run_whenSequenceFails_shouldFailWithoutError", test_run_whenSequenceFails_shouldFailWithoutError),
+        ("test_run_whenSequenceIsEmpty_shouldThrowError", test_run_whenSequenceIsEmpty_shouldThrowError),
+        ("test_run_whenOutputTypesDoNotMatch_shouldThrowError", test_run_whenOutputTypesDoNotMatch_shouldThrowError),
+        ("test_run_whenInputTypesDoNotMatch_shouldThrowError", test_run_whenInputTypesDoNotMatch_shouldThrowError),
+    ]
 }
