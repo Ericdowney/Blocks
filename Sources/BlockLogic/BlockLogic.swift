@@ -66,7 +66,9 @@ public enum BlockError: Error {
     case emptyBlockSequence, unmatchedInputTypes, unmatchedOutputTypes
 }
 
-public struct AnyBlock: Block {
+protocol TypeErasedBlock {}
+
+public struct AnyBlock: Block, TypeErasedBlock {
     
     private var block: (Any, @escaping (BlockResult<Any>) throws -> Void) throws -> Void
     
@@ -79,7 +81,7 @@ public struct AnyBlock: Block {
     }
 }
 
-public struct AnyStateBlock: StateBlock {
+public struct AnyStateBlock: StateBlock, TypeErasedBlock {
     
     public internal(set) var _state: AssuredValue<Any>
     private var block: (Any, Any, @escaping (BlockResult<Any>) throws -> Void) throws -> Void
@@ -142,7 +144,7 @@ public struct BlockSequence<SequenceInput, SequenceOutput>: Block, ExpressibleBy
 public struct StateBlockSequence<State: BlockState, SequenceInput, SequenceOutput>: StateBlock, ExpressibleByArrayLiteral {
     
     public private(set) var _state: AssuredValue<State>
-    var blocks: [AnyStateBlock]
+    var blocks: [TypeErasedBlock]
     
     public init(arrayLiteral elements: AnyStateBlock...) {
         self._state = .init()
@@ -154,19 +156,38 @@ public struct StateBlockSequence<State: BlockState, SequenceInput, SequenceOutpu
         self.blocks = elements
     }
     
+    init(arrayLiteral elements: TypeErasedBlock...) {
+        self._state = .init()
+        self.blocks = elements
+    }
+    
+    init(_ state: State, _ elements: [TypeErasedBlock] = []) {
+        self._state = .init(state)
+        self.blocks = elements
+    }
+    
     public mutating func append<B: StateBlock>(_ block: B) {
         blocks.append(block.eraseToAnyStateBlock())
     }
     
     public func run(_ input: SequenceInput, _ completion: @escaping (BlockResult<SequenceOutput>) throws -> Void) throws {
         guard blocks.count > 0 else { throw BlockError.emptyBlockSequence }
-        blocks.forEach { $0._state.wrappedValue = _state.wrappedValue }
+        blocks.compactMap { $0 as? AnyStateBlock }.forEach { $0._state.wrappedValue = _state.wrappedValue }
         
         try run(at: 0, input, completion)
     }
     
     private func run(at index: Int, _ nextInput: Any, _ completion: @escaping (BlockResult<SequenceOutput>) throws -> Void) throws {
-        if let block = blocks.value(at: index) {
+        if let block = blocks.value(at: index).flatMap({ $0 as? AnyStateBlock }) {
+            try block.run(nextInput) { result in
+                switch result {
+                case .done(let nextInput):
+                    try run(at: index + 1, nextInput, completion)
+                case .failed(let error):
+                    try completion(.failed(error))
+                }
+            }
+        } else if let block = blocks.value(at: index).flatMap({ $0 as? AnyBlock }) {
             try block.run(nextInput) { result in
                 switch result {
                 case .done(let nextInput):
@@ -204,6 +225,18 @@ func --><Input, Output, B: StateBlock>(sequence: StateBlockSequence<B.State, Inp
     StateBlockSequence<B.State, Input, Output>(nil, sequence.blocks + [nextBlock.eraseToAnyStateBlock()])
 }
 
+func --><State, Input, Output, B: Block>(sequence: StateBlockSequence<State, Input, Output>, nextBlock: B) -> StateBlockSequence<State, Input, Output> {
+    StateBlockSequence<State, Input, Output>(nil, sequence.blocks + [nextBlock.eraseToAnyBlock()])
+}
+
 func --><B1: StateBlock, B2: StateBlock, Input, Output>(previousBlock: B1, nextBlock: B2) -> StateBlockSequence<B1.State, Input, Output> where B1.Output == B2.Input, B1.State == B2.State {
     StateBlockSequence<B1.State, Input, Output>(nil, [previousBlock.eraseToAnyStateBlock(), nextBlock.eraseToAnyStateBlock()])
+}
+
+func --><B1: Block, B2: StateBlock, Input, Output>(previousBlock: B1, nextBlock: B2) -> StateBlockSequence<B2.State, Input, Output> where B1.Output == B2.Input {
+    StateBlockSequence<B2.State, Input, Output>(nil, [previousBlock.eraseToAnyBlock(), nextBlock.eraseToAnyStateBlock()])
+}
+
+func --><B1: StateBlock, B2: Block, Input, Output>(previousBlock: B1, nextBlock: B2) -> StateBlockSequence<B1.State, Input, Output> where B1.Output == B2.Input {
+    StateBlockSequence<B1.State, Input, Output>(nil, [previousBlock.eraseToAnyStateBlock(), nextBlock.eraseToAnyBlock()])
 }

@@ -20,6 +20,22 @@ final class BlockStatefulFlowTests: XCTestCase {
         }
     }
     
+    func test_run_whenMixingStatefulAndStatelessBlocks_shouldOutputTheCorrectResult() throws {
+        let subject = BlockStatefulFlow<TestState, Int, Int>(
+            state: .init(),
+            sequence: Add4Block() --> Add4StateBlock() --> Add4StateBlock() --> Add4Block() --> Add4StateBlock() --> Add4StateBlock() --> Add4Block()
+        )
+        
+        try subject.run(2) { result in
+            switch result {
+            case .done(let result):
+                XCTAssertEqual(result, 176)
+            case .failed(let error):
+                XCTFail(error?.localizedDescription ?? "")
+            }
+        }
+    }
+    
     func test_run_whenSequenceFails_shouldFailWithError() throws {
         let subject: BlockStatefulFlow<TestState, Int, Int> = BlockStatefulFlow(
             state: .init(),
