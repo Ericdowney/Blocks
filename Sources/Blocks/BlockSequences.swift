@@ -45,6 +45,8 @@ public struct BlockSequence<SequenceInput, SequenceOutput>: Block, ExpressibleBy
     }
 }
 
+public protocol BlockState: ExpressibleByNilLiteral {}
+
 public struct StateBlockSequence<State: BlockState, SequenceInput, SequenceOutput>: StateBlock, ExpressibleByArrayLiteral {
     
     public private(set) var _state: AssuredValue<State>
