@@ -213,6 +213,14 @@ fileprivate extension Array {
 
 infix operator -->: AdditionPrecedence
 
+func --><Input1, SequenceBridgeInput, Output2>(sequence1: BlockSequence<Input1, SequenceBridgeInput>, sequence2: BlockSequence<SequenceBridgeInput, Output2>) -> BlockSequence<Input1, Output2> {
+    [sequence1.eraseToAnyBlock(), sequence2.eraseToAnyBlock()]
+}
+
+func --><State: BlockState, Input1, SequenceBridgeInput, Output2>(sequence1: StateBlockSequence<State, Input1, SequenceBridgeInput>, sequence2: StateBlockSequence<State, SequenceBridgeInput, Output2>) -> StateBlockSequence<State, Input1, Output2> {
+    [sequence1.eraseToAnyStateBlock(), sequence2.eraseToAnyStateBlock()]
+}
+
 func --><Input, Output, B: Block>(sequence: BlockSequence<Input, Output>, nextBlock: B) -> BlockSequence<Input, Output> {
     BlockSequence<Input, Output>(sequence.blocks + [nextBlock.eraseToAnyBlock()])
 }

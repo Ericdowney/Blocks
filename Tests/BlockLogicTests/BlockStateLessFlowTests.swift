@@ -18,6 +18,23 @@ final class BlockStateLessFlowTests: XCTestCase {
         }
     }
     
+    func test_run_whenMultipleSequencesAreConnected_shouldOutputTheCorrectResult() throws {
+        let sequence1: BlockSequence<Int, Int> = Add4Block() --> Add4Block() --> Add4Block() --> Add4Block()
+        let sequence2: BlockSequence<Int, Int> = Add4Block() --> Add4Block()
+        let subject: BlockStatelessFlow<Int, Int> = BlockStatelessFlow(
+            sequence: sequence1 --> sequence2
+        )
+        
+        try subject.run(2) { result in
+            switch result {
+            case .done(let result):
+                XCTAssertEqual(result, 26)
+            case .failed(let error):
+                XCTFail(error?.localizedDescription ?? "")
+            }
+        }
+    }
+    
     func test_run_whenMultipleTypeBlocksExist_shouldOutputTheCorrectResult() throws {
         let subject: BlockStatelessFlow<Int, String> = BlockStatelessFlow(
             sequence: Add4Block() --> Add4Block() --> Add4Block() --> Add4Block() --> IntToStringBlock() --> ConcatenateStringBlock()

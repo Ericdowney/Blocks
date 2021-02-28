@@ -36,6 +36,42 @@ final class BlockStatefulFlowTests: XCTestCase {
         }
     }
     
+    func test_run_whenMultipleSequencesAreConnected_shouldOutputTheCorrectResult() throws {
+        let sequence1: StateBlockSequence<TestState, Int, Int> = Add4StateBlock() --> Add4StateBlock() --> Add4StateBlock() --> Add4StateBlock()
+        let sequence2: StateBlockSequence<TestState, Int, Int> = Add4StateBlock() --> Add4StateBlock()
+        let subject: BlockStatefulFlow<TestState, Int, Int> = BlockStatefulFlow(
+            state: .init(),
+            sequence: sequence1 --> sequence2
+        )
+        
+        try subject.run(2) { result in
+            switch result {
+            case .done(let result):
+                XCTAssertEqual(result, 380)
+            case .failed(let error):
+                XCTFail(error?.localizedDescription ?? "")
+            }
+        }
+    }
+    
+    func test_run_whenMultipleSequencesAreConnected_andSequencesAreMixedStatefulAndStateless_shouldOutputTheCorrectResult() throws {
+        let sequence1: BlockSequence<Int, Int> = Add4Block() --> Add4Block() --> Add4Block() --> Add4Block()
+        let sequence2: StateBlockSequence<TestState, Int, Int> = Add4StateBlock() --> Add4StateBlock()
+        let subject: BlockStatefulFlow<TestState, Int, Int> = BlockStatefulFlow(
+            state: .init(),
+            sequence: sequence1 --> sequence2
+        )
+        
+        try subject.run(2) { result in
+            switch result {
+            case .done(let result):
+                XCTAssertEqual(result, 84)
+            case .failed(let error):
+                XCTFail(error?.localizedDescription ?? "")
+            }
+        }
+    }
+    
     func test_run_whenSequenceFails_shouldFailWithError() throws {
         let subject: BlockStatefulFlow<TestState, Int, Int> = BlockStatefulFlow(
             state: .init(),
