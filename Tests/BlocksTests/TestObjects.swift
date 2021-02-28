@@ -1,6 +1,6 @@
 
 import Foundation
-import BlockLogic
+import Blocks
 
 // MARK: - StateLess Blocks
 
@@ -52,6 +52,14 @@ struct IntFailWithoutErrorBlock: Block {
     
     func run(_ input: Int, _ completion: @escaping Completion) throws {
         try completion(.failed(nil))
+    }
+}
+
+struct StringBreakBlock: Block {
+    typealias Output = String
+    
+    func run(_ input: Int, _ completion: @escaping Completion) throws {
+        try completion(.break("\(input)-END"))
     }
 }
 

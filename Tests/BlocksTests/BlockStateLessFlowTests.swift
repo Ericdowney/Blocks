@@ -1,5 +1,5 @@
 import XCTest
-@testable import BlockLogic
+@testable import Blocks
 
 final class BlockStateLessFlowTests: XCTestCase {
         
@@ -48,6 +48,43 @@ final class BlockStateLessFlowTests: XCTestCase {
             switch result {
             case .done(let result):
                 XCTAssertEqual(result, "18-123")
+            case .break(_):
+                XCTFail()
+            case .failed(let error):
+                XCTFail(error?.localizedDescription ?? "")
+            }
+        }
+    }
+    
+    func test_run_whenBlockBreaksEarly_sholdOutputCorrectResult() throws {
+        let subject: BlockStatelessFlow<Int, String> = BlockStatelessFlow(
+            sequence: Add4Block() --> StringBreakBlock() --> Add4Block() --> Add4Block() --> IntToStringBlock() --> ConcatenateStringBlock()
+        )
+        
+        try subject.run(2) { result in
+            switch result {
+            case .done(let result):
+                XCTAssertEqual(result, "6-END")
+            case .break(_):
+                XCTFail()
+            case .failed(let error):
+                XCTFail(error?.localizedDescription ?? "")
+            }
+        }
+    }
+    
+    func test_run_whenBlockBreaksEarlyInInnerSequence_sholdOutputCorrectResult() throws {
+        let sequence1: BlockSequence<Int, Int> = Add4Block() --> Add4Block()
+        let sequence2: BlockSequence<Int, String> = StringBreakBlock() --> ConcatenateStringBlock() --> ConcatenateStringBlock() --> ConcatenateStringBlock()
+        let sequence3: BlockSequence<String, String> = ConcatenateStringBlock() --> ConcatenateStringBlock()
+        let subject: BlockStatelessFlow<Int, String> = BlockStatelessFlow(
+            sequence: sequence1 --> sequence2 --> sequence3
+        )
+        
+        try subject.run(2) { result in
+            switch result {
+            case .done(let result):
+                XCTAssertEqual(result, "10-END-123-123")
             case .break(_):
                 XCTFail()
             case .failed(let error):

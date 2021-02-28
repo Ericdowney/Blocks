@@ -1,6 +1,6 @@
 
 import XCTest
-import BlockLogic
+import Blocks
 
 final class AssuredValueTests: XCTestCase {
     

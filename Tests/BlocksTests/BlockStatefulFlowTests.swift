@@ -1,6 +1,6 @@
 
 import XCTest
-@testable import BlockLogic
+@testable import Blocks
 
 final class BlockStatefulFlowTests: XCTestCase {
     
@@ -72,6 +72,45 @@ final class BlockStatefulFlowTests: XCTestCase {
             switch result {
             case .done(let result):
                 XCTAssertEqual(result, 84)
+            case .break(_):
+                XCTFail()
+            case .failed(let error):
+                XCTFail(error?.localizedDescription ?? "")
+            }
+        }
+    }
+    
+    func test_run_whenBlockBreaksEarly_sholdOutputCorrectResult() throws {
+        let subject = BlockStatefulFlow<TestState, Int, String>(
+            state: .init(),
+            sequence: Add4Block() --> Add4StateBlock() --> StringBreakBlock() --> Add4Block() --> Add4StateBlock() --> Add4StateBlock() --> Add4Block()
+        )
+        
+        try subject.run(2) { result in
+            switch result {
+            case .done(let result):
+                XCTAssertEqual(result, "16-END")
+            case .break(_):
+                XCTFail()
+            case .failed(let error):
+                XCTFail(error?.localizedDescription ?? "")
+            }
+        }
+    }
+    
+    func test_run_whenBlockBreaksEarlyInInnerSequence_sholdOutputCorrectResult() throws {
+        let sequence1: StateBlockSequence<TestState, Int, Int> = Add4StateBlock() --> Add4StateBlock()
+        let sequence2: StateBlockSequence<TestState, Int, String> = .init() --> StringBreakBlock() --> ConcatenateStringBlock() --> ConcatenateStringBlock() --> ConcatenateStringBlock()
+        let sequence3: StateBlockSequence<TestState, String, String> = .init() --> ConcatenateStringBlock() --> ConcatenateStringBlock()
+        let subject: BlockStatefulFlow<TestState, Int, String> = BlockStatefulFlow(
+            state: .init(),
+            sequence: sequence1 --> sequence2 --> sequence3
+        )
+        
+        try subject.run(2) { result in
+            switch result {
+            case .done(let result):
+                XCTAssertEqual(result, "20-END-123-123")
             case .break(_):
                 XCTFail()
             case .failed(let error):

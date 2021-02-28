@@ -1,7 +1,7 @@
 import XCTest
 
-import BlockLogicTests
+import BlocksTests
 
 var tests = [XCTestCaseEntry]()
-tests += BlockLogicTests.allTests()
+tests += BlocksTests.allTests()
 XCTMain(tests)

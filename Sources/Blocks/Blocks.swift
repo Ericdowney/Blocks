@@ -40,6 +40,13 @@ extension Block {
     }
 }
 
+extension Block where Input == Void {
+    
+    func run(_ completion: @escaping Completion) throws {
+        try run((), completion)
+    }
+}
+
 extension StateBlock {
     
     func eraseToAnyStateBlock() -> AnyStateBlock {

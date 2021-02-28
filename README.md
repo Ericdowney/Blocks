@@ -4,7 +4,7 @@ This is a prototype framework to create blocks of reusable logic similar to Swif
 
 ## Examples:
 
-### Without Blocks
+## Without Blocks
 
 The example flow will be a shopping app gated with a user sign in flow.
 
@@ -41,7 +41,11 @@ This will only focus on the "Create Account" screen and the logic required to cr
 
 The above is psudocode for the `createNewUser` method. If we were to then move on to the returning user flow, we would have to write a `LoginService` that duplicated this logic except for the `post:/api/create` step. Any attempt to reuse this logic would require creating a separate Utility class that handles the login part, except that would then take all the responsibility away from the `LoginService`. The `CreateAccountService` could use a `LoginService`, except that is odd architecturally since they are at the same layer and one should not be dependent on the other.
 
-### With Blocks
+
+
+
+
+## With Blocks
 
 `CreateAccountView`
 
