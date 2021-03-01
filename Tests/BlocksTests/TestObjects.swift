@@ -40,7 +40,7 @@ struct ConcatenateStringBlock: Block {
 }
 
 struct IntFailWithErrorBlock: Block {
-    typealias Output = String
+    typealias Output = Int
     
     func run(_ input: Int, _ completion: @escaping Completion) throws {
         try completion(.failed(NSError(domain: "", code: 0, userInfo: nil)))
@@ -48,7 +48,7 @@ struct IntFailWithErrorBlock: Block {
 }
 
 struct IntFailWithoutErrorBlock: Block {
-    typealias Output = String
+    typealias Output = Int
     
     func run(_ input: Int, _ completion: @escaping Completion) throws {
         try completion(.failed(nil))
@@ -96,7 +96,7 @@ struct StringToIntStateBlock: StateBlock {
 }
 
 struct IntFailWithErrorStateBlock: StateBlock {
-    typealias Output = String
+    typealias Output = Int
     
     var _state: AssuredValue<TestState> = .init()
     
@@ -106,7 +106,7 @@ struct IntFailWithErrorStateBlock: StateBlock {
 }
 
 struct IntFailWithoutErrorStateBlock: StateBlock {
-    typealias Output = String
+    typealias Output = Int
     
     var _state: AssuredValue<TestState> = .init()
     

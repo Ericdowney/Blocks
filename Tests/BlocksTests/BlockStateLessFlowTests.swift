@@ -6,7 +6,7 @@ final class BlockStateLessFlowTests: XCTestCase {
     // MARK: - Tests
         
     func test_run_whenTypesMatch_shouldOutputTheCorrectResult() throws {
-        let subject: BlockStatelessFlow<Int, Int> = BlockStatelessFlow(
+        let subject = BlockStatelessFlow(
             sequence: Add4Block() --> Add4Block() --> Add4Block() --> Add4Block()
         )
         
@@ -23,9 +23,9 @@ final class BlockStateLessFlowTests: XCTestCase {
     }
     
     func test_run_whenMultipleSequencesAreConnected_shouldOutputTheCorrectResult() throws {
-        let sequence1: BlockSequence<Int, Int> = Add4Block() --> Add4Block() --> Add4Block() --> Add4Block()
-        let sequence2: BlockSequence<Int, Int> = Add4Block() --> Add4Block()
-        let subject: BlockStatelessFlow<Int, Int> = BlockStatelessFlow(
+        let sequence1 = Add4Block() --> Add4Block() --> Add4Block() --> Add4Block()
+        let sequence2 = Add4Block() --> Add4Block()
+        let subject = BlockStatelessFlow(
             sequence: sequence1 --> sequence2
         )
         
@@ -42,7 +42,7 @@ final class BlockStateLessFlowTests: XCTestCase {
     }
     
     func test_run_whenMultipleTypeBlocksExist_shouldOutputTheCorrectResult() throws {
-        let subject: BlockStatelessFlow<Int, String> = BlockStatelessFlow(
+        let subject = BlockStatelessFlow(
             sequence: Add4Block() --> Add4Block() --> Add4Block() --> Add4Block() --> IntToStringBlock() --> ConcatenateStringBlock()
         )
         
@@ -59,8 +59,8 @@ final class BlockStateLessFlowTests: XCTestCase {
     }
     
     func test_run_whenBlockBreaksEarly_sholdOutputCorrectResult() throws {
-        let subject: BlockStatelessFlow<Int, String> = BlockStatelessFlow(
-            sequence: Add4Block() --> StringBreakBlock() --> Add4Block() --> Add4Block() --> IntToStringBlock() --> ConcatenateStringBlock()
+        let subject = BlockStatelessFlow(
+            sequence: Add4Block() --> StringBreakBlock() --> ConcatenateStringBlock()
         )
         
         try subject.run(2) { result in
@@ -76,10 +76,10 @@ final class BlockStateLessFlowTests: XCTestCase {
     }
     
     func test_run_whenBlockBreaksEarlyInInnerSequence_sholdOutputCorrectResult() throws {
-        let sequence1: BlockSequence<Int, Int> = Add4Block() --> Add4Block()
-        let sequence2: BlockSequence<Int, String> = StringBreakBlock() --> ConcatenateStringBlock() --> ConcatenateStringBlock() --> ConcatenateStringBlock()
-        let sequence3: BlockSequence<String, String> = ConcatenateStringBlock() --> ConcatenateStringBlock()
-        let subject: BlockStatelessFlow<Int, String> = BlockStatelessFlow(
+        let sequence1 = Add4Block() --> Add4Block()
+        let sequence2 = StringBreakBlock() --> ConcatenateStringBlock() --> ConcatenateStringBlock() --> ConcatenateStringBlock()
+        let sequence3 = ConcatenateStringBlock() --> ConcatenateStringBlock()
+        let subject = BlockStatelessFlow(
             sequence: sequence1 --> sequence2 --> sequence3
         )
         
@@ -96,7 +96,7 @@ final class BlockStateLessFlowTests: XCTestCase {
     }
     
     func test_run_whenSequenceFails_shouldFailWithError() throws {
-        let subject: BlockStatelessFlow<Int, Int> = BlockStatelessFlow(
+        let subject = BlockStatelessFlow(
             sequence: Add4Block() --> Add4Block() --> Add4Block() --> Add4Block() --> IntFailWithErrorBlock()
         )
         
@@ -113,7 +113,7 @@ final class BlockStateLessFlowTests: XCTestCase {
     }
     
     func test_run_whenSequenceFails_shouldFailWithoutError() throws {
-        let subject: BlockStatelessFlow<Int, Int> = BlockStatelessFlow(
+        let subject = BlockStatelessFlow(
             sequence: Add4Block() --> Add4Block() --> Add4Block() --> Add4Block() --> IntFailWithErrorBlock()
         )
         
@@ -130,7 +130,7 @@ final class BlockStateLessFlowTests: XCTestCase {
     }
     
     func test_run_whenSequenceIsEmpty_shouldThrowError() {
-        let subject: BlockStatelessFlow<Int, Int> = BlockStatelessFlow(sequence: .init())
+        let subject = BlockStatelessFlow<Int, Int>(sequence: .init())
         
         do {
             try subject.run(2) { _ in XCTFail() }
@@ -140,8 +140,8 @@ final class BlockStateLessFlowTests: XCTestCase {
     }
     
     func test_run_whenOutputTypesDoNotMatch_shouldThrowError() throws {
-        let subject: BlockStatelessFlow<Int, String> = BlockStatelessFlow(
-            sequence: Add4Block() --> Add4Block() --> Add4Block() --> Add4Block()
+        let subject = BlockStatelessFlow<Int, String>(
+            sequence: [Add4Block().eraseToAnyBlock(), Add4Block().eraseToAnyBlock(), Add4Block().eraseToAnyBlock(), Add4Block().eraseToAnyBlock()]
         )
         
         do {
@@ -152,7 +152,7 @@ final class BlockStateLessFlowTests: XCTestCase {
     }
     
     func test_run_whenInputTypesDoNotMatch_shouldThrowError() throws {
-        let subject: BlockStatelessFlow<Int, Int> = BlockStatelessFlow(
+        let subject = BlockStatelessFlow<Int, Int>(
             sequence: [Add4Block().eraseToAnyBlock(), StringToIntBlock().eraseToAnyBlock(), Add4Block().eraseToAnyBlock(), Add4Block().eraseToAnyBlock()]
         )
         
