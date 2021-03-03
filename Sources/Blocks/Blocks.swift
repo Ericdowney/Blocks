@@ -4,7 +4,7 @@ public protocol Block {
     associatedtype Output
     typealias Completion = (BlockResult<Output>) -> Void
     
-    func run(_ input: Input, _ completion: @escaping Completion)
+    func run(_ input: Input, _ completion: @escaping Completion) throws
 }
 
 public protocol StateBlock: Block {
