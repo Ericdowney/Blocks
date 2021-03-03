@@ -7,75 +7,75 @@ import Blocks
 struct Add4Block: Block {
     typealias Output = Int
     
-    func run(_ input: Int, _ completion: @escaping Completion) throws {
-        try completion(.done(input + 4))
+    func run(_ input: Int, _ completion: @escaping Completion) {
+        completion(.done(input + 4))
     }
 }
 
 struct StringToIntBlock: Block {
     typealias Output = Int
     
-    func run(_ input: String, _ completion: @escaping Completion) throws {
+    func run(_ input: String, _ completion: @escaping Completion) {
         guard let result = Int(input) else {
-            return try completion(.failed(nil))
+            return completion(.failed(nil))
         }
-        try completion(.done(result))
+        completion(.done(result))
     }
 }
 
 struct IntToStringBlock: Block {
     typealias Output = String
     
-    func run(_ input: Int, _ completion: @escaping Completion) throws {
-        try completion(.done("\(input)"))
+    func run(_ input: Int, _ completion: @escaping Completion) {
+        completion(.done("\(input)"))
     }
 }
 
 struct ConcatenateStringBlock: Block {
     typealias Output = String
     
-    func run(_ input: String, _ completion: @escaping Completion) throws {
-        try completion(.done(input + "-123"))
+    func run(_ input: String, _ completion: @escaping Completion) {
+        completion(.done(input + "-123"))
     }
 }
 
 struct IntFailWithErrorBlock: Block {
     typealias Output = Int
     
-    func run(_ input: Int, _ completion: @escaping Completion) throws {
-        try completion(.failed(NSError(domain: "", code: 0, userInfo: nil)))
+    func run(_ input: Int, _ completion: @escaping Completion) {
+        completion(.failed(NSError(domain: "", code: 0, userInfo: nil)))
     }
 }
 
 struct IntFailWithoutErrorBlock: Block {
     typealias Output = Int
     
-    func run(_ input: Int, _ completion: @escaping Completion) throws {
-        try completion(.failed(nil))
+    func run(_ input: Int, _ completion: @escaping Completion) {
+        completion(.failed(nil))
     }
 }
 
 struct StringBreakBlock: Block {
     typealias Output = String
     
-    func run(_ input: Int, _ completion: @escaping Completion) throws {
-        try completion(.break("\(input)-END"))
+    func run(_ input: Int, _ completion: @escaping Completion) {
+        completion(.break("\(input)-END"))
     }
 }
 
 struct VoidInputVoidOutputBlock: Block {
     typealias Output = Void
     
-    func run(_: Void, _ completion: @escaping Completion) throws {
-        try completion(.done(()))
+    func run(_: Void, _ completion: @escaping Completion) {
+        completion(.done(()))
     }
 }
 
 struct VoidInputIntOutputBlock: Block {
     typealias Output = Int
     
-    func run(_: Void, _ completion: @escaping Completion) throws {
-        try completion(.done(39))
+    func run(_: Void, _ completion: @escaping Completion) {
+        completion(.done(39))
     }
 }
 
@@ -93,8 +93,8 @@ struct Add4StateBlock: StateBlock {
     
     var _state: AssuredValue<TestState> = .init()
     
-    func run(_ input: Int, _ completion: @escaping Completion) throws {
-        try completion(.done(input * state.multiplier + 4))
+    func run(_ input: Int, _ completion: @escaping Completion) {
+        completion(.done(input * state.multiplier + 4))
     }
 }
 
@@ -103,11 +103,11 @@ struct StringToIntStateBlock: StateBlock {
     
     var _state: AssuredValue<TestState> = .init()
     
-    func run(_ input: String, _ completion: @escaping Completion) throws {
+    func run(_ input: String, _ completion: @escaping Completion) {
         guard let result = Int(input) else {
-            return try completion(.failed(nil))
+            return completion(.failed(nil))
         }
-        try completion(.done(result))
+        completion(.done(result))
     }
 }
 
@@ -116,8 +116,8 @@ struct IntFailWithErrorStateBlock: StateBlock {
     
     var _state: AssuredValue<TestState> = .init()
     
-    func run(_ input: Int, _ completion: @escaping Completion) throws {
-        try completion(.failed(NSError(domain: "", code: 0, userInfo: nil)))
+    func run(_ input: Int, _ completion: @escaping Completion) {
+        completion(.failed(NSError(domain: "", code: 0, userInfo: nil)))
     }
 }
 
@@ -126,8 +126,8 @@ struct IntFailWithoutErrorStateBlock: StateBlock {
     
     var _state: AssuredValue<TestState> = .init()
     
-    func run(_ input: Int, _ completion: @escaping Completion) throws {
-        try completion(.failed(nil))
+    func run(_ input: Int, _ completion: @escaping Completion) {
+        completion(.failed(nil))
     }
 }
 
@@ -136,8 +136,8 @@ struct VoidInputIntOutputStateBlock: StateBlock {
     
     var _state: AssuredValue<TestState> = .init()
     
-    func run(_: Void, _ completion: @escaping Completion) throws {
-        try completion(.done(_state.wrappedValue.multiplier + 39))
+    func run(_: Void, _ completion: @escaping Completion) {
+        completion(.done(_state.wrappedValue.multiplier + 39))
     }
 }
 
@@ -146,7 +146,7 @@ struct VoidInputVoidOutputStateBlock: StateBlock {
     
     var _state: AssuredValue<TestState> = .init()
     
-    func run(_: Void, _ completion: @escaping Completion) throws {
-        try completion(.done(()))
+    func run(_: Void, _ completion: @escaping Completion) {
+        completion(.done(()))
     }
 }

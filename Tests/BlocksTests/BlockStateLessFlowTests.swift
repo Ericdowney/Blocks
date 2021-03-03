@@ -10,7 +10,7 @@ final class BlockStateLessFlowTests: XCTestCase {
             sequence: Add4Block() --> Add4Block() --> Add4Block() --> Add4Block()
         )
         
-        try subject.run(2) { result in
+        subject.run(2) { result in
             switch result {
             case .done(let result):
                 XCTAssertEqual(result, 18)
@@ -29,7 +29,7 @@ final class BlockStateLessFlowTests: XCTestCase {
             sequence: sequence1 --> sequence2
         )
         
-        try subject.run(2) { result in
+        subject.run(2) { result in
             switch result {
             case .done(let result):
                 XCTAssertEqual(result, 26)
@@ -46,7 +46,7 @@ final class BlockStateLessFlowTests: XCTestCase {
             sequence: Add4Block() --> Add4Block() --> Add4Block() --> Add4Block() --> IntToStringBlock() --> ConcatenateStringBlock()
         )
         
-        try subject.run(2) { result in
+        subject.run(2) { result in
             switch result {
             case .done(let result):
                 XCTAssertEqual(result, "18-123")
@@ -63,7 +63,7 @@ final class BlockStateLessFlowTests: XCTestCase {
             sequence: Add4Block() --> StringBreakBlock() --> ConcatenateStringBlock()
         )
         
-        try subject.run(2) { result in
+        subject.run(2) { result in
             switch result {
             case .done(let result):
                 XCTAssertEqual(result, "6-END")
@@ -83,7 +83,7 @@ final class BlockStateLessFlowTests: XCTestCase {
             sequence: sequence1 --> sequence2 --> sequence3
         )
         
-        try subject.run(2) { result in
+        subject.run(2) { result in
             switch result {
             case .done(let result):
                 XCTAssertEqual(result, "10-END-123-123")
@@ -100,7 +100,7 @@ final class BlockStateLessFlowTests: XCTestCase {
             sequence: Add4Block() --> Add4Block() --> Add4Block() --> VoidInputIntOutputBlock()
         )
         
-        try subject.run(2) { result in
+        subject.run(2) { result in
             switch result {
             case .done(let result):
                 XCTAssertEqual(result, 39)
@@ -117,7 +117,7 @@ final class BlockStateLessFlowTests: XCTestCase {
             sequence: Add4Block() --> Add4Block() --> VoidInputVoidOutputBlock() --> VoidInputIntOutputBlock()
         )
         
-        try subject.run(2) { result in
+        subject.run(2) { result in
             switch result {
             case .done(let result):
                 XCTAssertEqual(result, 39)
@@ -134,7 +134,7 @@ final class BlockStateLessFlowTests: XCTestCase {
             sequence: Add4Block() --> Add4Block() --> Add4Block() --> Add4Block() --> IntFailWithErrorBlock()
         )
         
-        try subject.run(2) { result in
+        subject.run(2) { result in
             switch result {
             case .done(_):
                 XCTFail()
@@ -151,7 +151,7 @@ final class BlockStateLessFlowTests: XCTestCase {
             sequence: Add4Block() --> Add4Block() --> Add4Block() --> Add4Block() --> IntFailWithErrorBlock()
         )
         
-        try subject.run(2) { result in
+        subject.run(2) { result in
             switch result {
             case .done(_):
                 XCTFail()
@@ -160,40 +160,6 @@ final class BlockStateLessFlowTests: XCTestCase {
             case .failed(let error):
                 XCTAssertNotNil(error)
             }
-        }
-    }
-    
-    func test_run_whenSequenceIsEmpty_shouldThrowError() {
-        let subject = BlockStatelessFlow<Int, Int>(sequence: .init())
-        
-        do {
-            try subject.run(2) { _ in XCTFail() }
-        } catch {
-            XCTAssertEqual(error as? BlockError, .emptyBlockSequence)
-        }
-    }
-    
-    func test_run_whenOutputTypesDoNotMatch_shouldThrowError() throws {
-        let subject = BlockStatelessFlow<Int, String>(
-            sequence: [Add4Block().eraseToAnyBlock(), Add4Block().eraseToAnyBlock(), Add4Block().eraseToAnyBlock(), Add4Block().eraseToAnyBlock()]
-        )
-        
-        do {
-            try subject.run(2) { _ in XCTFail() }
-        } catch {
-            XCTAssertEqual(error as? BlockError, .unmatchedOutputTypes)
-        }
-    }
-    
-    func test_run_whenInputTypesDoNotMatch_shouldThrowError() throws {
-        let subject = BlockStatelessFlow<Int, Int>(
-            sequence: [Add4Block().eraseToAnyBlock(), StringToIntBlock().eraseToAnyBlock(), Add4Block().eraseToAnyBlock(), Add4Block().eraseToAnyBlock()]
-        )
-        
-        do {
-            try subject.run(2) { _ in XCTFail() }
-        } catch {
-            XCTAssertEqual(error as? BlockError, .unmatchedInputTypes)
         }
     }
     
@@ -207,8 +173,5 @@ final class BlockStateLessFlowTests: XCTestCase {
         ("test_run_whenBlockBreaksEarlyInInnerSequence_sholdOutputCorrectResult", test_run_whenBlockBreaksEarlyInInnerSequence_sholdOutputCorrectResult),
         ("test_run_whenSequenceFails_shouldFailWithError", test_run_whenSequenceFails_shouldFailWithError),
         ("test_run_whenSequenceFails_shouldFailWithoutError", test_run_whenSequenceFails_shouldFailWithoutError),
-        ("test_run_whenSequenceIsEmpty_shouldThrowError", test_run_whenSequenceIsEmpty_shouldThrowError),
-        ("test_run_whenOutputTypesDoNotMatch_shouldThrowError", test_run_whenOutputTypesDoNotMatch_shouldThrowError),
-        ("test_run_whenInputTypesDoNotMatch_shouldThrowError", test_run_whenInputTypesDoNotMatch_shouldThrowError),
     ]
 }

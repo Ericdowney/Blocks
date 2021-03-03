@@ -3,16 +3,16 @@ public extension Block {
     
     func eraseToAnyBlock() -> AnyBlock {
         AnyBlock { input, completion in
-            guard let nextInput = input as? Input else { throw BlockError.unmatchedInputTypes }
+            guard let nextInput = input as? Input else { return completion(.failed(BlockError.unmatchedInputTypes)) }
             
-            try run(nextInput) { result in
+            run(nextInput) { result in
                 switch result {
                 case .done(let output):
-                    try completion(.done(output))
+                    completion(.done(output))
                 case .break(let output):
-                    try completion(.break(output))
+                    completion(.break(output))
                 case .failed(let error):
-                    try completion(.failed(error))
+                    completion(.failed(error))
                 }
             }
         }
@@ -22,19 +22,19 @@ public extension Block {
 public extension Block where Input == Void {
     
     func run(_ completion: @escaping Completion) throws {
-        try run((), completion)
+        run((), completion)
     }
     
     func eraseToAnyVoidBlock() -> AnyBlock {
         AnyBlock { input, completion in
-            try run(()) { result in
+            run(()) { result in
                 switch result {
                 case .done(let output):
-                    try completion(.done(output))
+                    completion(.done(output))
                 case .break(let output):
-                    try completion(.break(output))
+                    completion(.break(output))
                 case .failed(let error):
-                    try completion(.failed(error))
+                    completion(.failed(error))
                 }
             }
         }
@@ -49,17 +49,17 @@ public extension StateBlock {
     
     func eraseToAnyStateBlock() -> AnyStateBlock {
         AnyStateBlock { state, input, completion in
-            guard let nextInput = input as? Input else { throw BlockError.unmatchedInputTypes }
+            guard let nextInput = input as? Input else { return completion(.failed(BlockError.unmatchedInputTypes)) }
             self._state.wrappedValue = state as? State
             
-            try run(nextInput) { result in
+            run(nextInput) { result in
                 switch result {
                 case .done(let output):
-                    try completion(.done(output))
+                    completion(.done(output))
                 case .break(let output):
-                    try completion(.break(output))
+                    completion(.break(output))
                 case .failed(let error):
-                    try completion(.failed(error))
+                    completion(.failed(error))
                 }
             }
         }
@@ -72,14 +72,14 @@ public extension StateBlock where Input == Void {
         AnyStateBlock { state, input, completion in
             self._state.wrappedValue = state as? State
             
-            try run(()) { result in
+            run(()) { result in
                 switch result {
                 case .done(let output):
-                    try completion(.done(output))
+                    completion(.done(output))
                 case .break(let output):
-                    try completion(.break(output))
+                    completion(.break(output))
                 case .failed(let error):
-                    try completion(.failed(error))
+                    completion(.failed(error))
                 }
             }
         }

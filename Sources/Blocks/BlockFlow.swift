@@ -23,9 +23,9 @@ public struct BlockStatefulFlow<State: BlockState, Input, Output>: StateBlock {
     
     // MARK: - Methods
     
-    public func run(_ input: Input, _ completion: @escaping Completion) throws {
+    public func run(_ input: Input, _ completion: @escaping Completion) {
         self.sequence._state.wrappedValue = _state.wrappedValue
-        try sequence.run(input, completion)
+        sequence.run(input, completion)
     }
 }
 
@@ -43,7 +43,7 @@ public struct BlockStatelessFlow<Input, Output>: Block {
     
     // MARK: - Methods
     
-    public func run(_ input: Input, _ completion: @escaping Completion) throws {
-        try sequence.run(input, completion)
+    public func run(_ input: Input, _ completion: @escaping Completion) {
+        sequence.run(input, completion)
     }
 }
