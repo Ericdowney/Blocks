@@ -3,8 +3,16 @@ public func flow<Input, Output>(for sequence: BlockSequence<Input, Output>) -> B
     .init(sequence: sequence)
 }
 
+public func flow<B: Block>(for block: B) -> BlockStatelessFlow<B.Input, B.Output> {
+    flow(for: BlockSequence([]) --> block)
+}
+
 public func flow<State: BlockState, Input, Output>(for sequence: StateBlockSequence<State, Input, Output>, with state: State) -> BlockStatefulFlow<State, Input, Output> {
     .init(state: state, sequence: sequence)
+}
+
+public func flow<B: StateBlock>(for block: B, with state: B.State) -> BlockStatefulFlow<B.State, B.Input, B.Output> {
+    flow(for: StateBlockSequence() --> block, with: state)
 }
 
 public struct BlockStatefulFlow<State: BlockState, Input, Output>: StateBlock {
