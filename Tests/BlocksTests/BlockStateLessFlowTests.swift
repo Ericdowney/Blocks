@@ -95,6 +95,23 @@ final class BlockStateLessFlowTests: XCTestCase {
         }
     }
     
+    func test_run_whenBlockHaveVoidInput_sholdOutputCorrectResult() throws {
+        let subject = BlockStatelessFlow(
+            sequence: Add4Block() --> Add4Block() --> Add4Block() --> VoidInputIntOutputBlock()
+        )
+        
+        try subject.run(2) { result in
+            switch result {
+            case .done(let result):
+                XCTAssertEqual(result, 39)
+            case .break(_):
+                XCTFail()
+            case .failed(let error):
+                XCTFail(error?.localizedDescription ?? "")
+            }
+        }
+    }
+    
     func test_run_whenSequenceFails_shouldFailWithError() throws {
         let subject = BlockStatelessFlow(
             sequence: Add4Block() --> Add4Block() --> Add4Block() --> Add4Block() --> IntFailWithErrorBlock()

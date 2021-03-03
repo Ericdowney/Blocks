@@ -63,6 +63,14 @@ struct StringBreakBlock: Block {
     }
 }
 
+struct VoidInputIntOutputBlock: Block {
+    typealias Output = Int
+    
+    func run(_: Void, _ completion: @escaping Completion) throws {
+        try completion(.done(39))
+    }
+}
+
 // MARK: - Stateful Blocks
 
 struct TestState: BlockState, ExpressibleByNilLiteral {
@@ -112,5 +120,15 @@ struct IntFailWithoutErrorStateBlock: StateBlock {
     
     func run(_ input: Int, _ completion: @escaping Completion) throws {
         try completion(.failed(nil))
+    }
+}
+
+struct VoidInputIntOutputStateBlock: StateBlock {
+    typealias Output = Int
+    
+    var _state: AssuredValue<TestState> = .init()
+    
+    func run(_: Void, _ completion: @escaping Completion) throws {
+        try completion(.done(_state.wrappedValue.multiplier + 39))
     }
 }
