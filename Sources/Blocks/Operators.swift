@@ -31,6 +31,15 @@ public func --><B1: Block, B2: Block>(previousBlock: B1, nextBlock: B2) -> Block
     return BlockSequence<B1.Input, B2.Output>([previousBlock.eraseToAnyBlock(), nextBlock.eraseToAnyVoidBlock()])
 }
 
+public func --><B1: Block, B2: Block>(previousBlock: B1, nextBlock: B2) -> BlockSequence<B1.Input, B2.Output> where B1.Output == B2.Input, B2.Input == Void {
+    if let sequence = previousBlock as? BlockSequence<B1.Input, B1.Output> {
+        return BlockSequence<B1.Input, B2.Output>(sequence.blocks + [nextBlock.eraseToAnyVoidBlock()])
+    } else if let sequence = nextBlock as? BlockSequence<B2.Input, B2.Output> {
+        return BlockSequence<B1.Input, B2.Output>([previousBlock.eraseToAnyBlock()] + sequence.blocks)
+    }
+    return BlockSequence<B1.Input, B2.Output>([previousBlock.eraseToAnyBlock(), nextBlock.eraseToAnyVoidBlock()])
+}
+
 // MARK: - State Blocks
 
 public func --><B1: StateBlock, B2: StateBlock>(previousBlock: B1, nextBlock: B2) -> StateBlockSequence<B1.State, B1.Input, B2.Output> where B1.Output == B2.Input, B1.State == B2.State {
@@ -60,7 +69,16 @@ public func --><B1: StateBlock, B2: Block>(previousBlock: B1, nextBlock: B2) -> 
     return StateBlockSequence<B1.State, B1.Input, B2.Output>(nil, [previousBlock.eraseToAnyStateBlock(), nextBlock.eraseToAnyBlock()])
 }
 
-public func --><B1: StateBlock, B2: StateBlock>(previousBlock: B1, nextBlock: B2) -> StateBlockSequence<B1.State, B1.Input, B2.Output> where B2.Input == Void {
+public func --><B1: StateBlock, B2: StateBlock>(previousBlock: B1, nextBlock: B2) -> StateBlockSequence<B1.State, B1.Input, B2.Output> where B2.Input == Void, B1.State == B2.State {
+    if let sequence = previousBlock as? StateBlockSequence<B1.State, B1.Input, B1.Output> {
+        return StateBlockSequence<B1.State, B1.Input, B2.Output>(nil, sequence.blocks + [nextBlock.eraseToAnyVoidStateBlock()])
+    } else if let sequence = nextBlock as? StateBlockSequence<B1.State, B2.Input, B2.Output> {
+        return StateBlockSequence<B1.State, B1.Input, B2.Output>(nil, [previousBlock.eraseToAnyBlock()] + sequence.blocks)
+    }
+    return StateBlockSequence<B1.State, B1.Input, B2.Output>(nil, [previousBlock.eraseToAnyStateBlock(), nextBlock.eraseToAnyVoidStateBlock()])
+}
+
+public func --><B1: StateBlock, B2: StateBlock>(previousBlock: B1, nextBlock: B2) -> StateBlockSequence<B1.State, B1.Input, B2.Output> where B1.Output == Void, B2.Input == Void, B1.State == B2.State {
     if let sequence = previousBlock as? StateBlockSequence<B1.State, B1.Input, B1.Output> {
         return StateBlockSequence<B1.State, B1.Input, B2.Output>(nil, sequence.blocks + [nextBlock.eraseToAnyVoidStateBlock()])
     } else if let sequence = nextBlock as? StateBlockSequence<B1.State, B2.Input, B2.Output> {

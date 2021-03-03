@@ -63,6 +63,14 @@ struct StringBreakBlock: Block {
     }
 }
 
+struct VoidInputVoidOutputBlock: Block {
+    typealias Output = Void
+    
+    func run(_: Void, _ completion: @escaping Completion) throws {
+        try completion(.done(()))
+    }
+}
+
 struct VoidInputIntOutputBlock: Block {
     typealias Output = Int
     
@@ -130,5 +138,15 @@ struct VoidInputIntOutputStateBlock: StateBlock {
     
     func run(_: Void, _ completion: @escaping Completion) throws {
         try completion(.done(_state.wrappedValue.multiplier + 39))
+    }
+}
+
+struct VoidInputVoidOutputStateBlock: StateBlock {
+    typealias Output = Void
+    
+    var _state: AssuredValue<TestState> = .init()
+    
+    func run(_: Void, _ completion: @escaping Completion) throws {
+        try completion(.done(()))
     }
 }
