@@ -1,5 +1,5 @@
 
-public struct BlockSet<SequenceInput, SequenceOutput, State>: Block, ExpressibleByArrayLiteral, ExpressibleByNilLiteral {
+public struct BlockSet<SequenceInput, SequenceOutput>: Block, ExpressibleByArrayLiteral, ExpressibleByNilLiteral {
     
     // MARK: - Properties
     
@@ -25,15 +25,15 @@ public struct BlockSet<SequenceInput, SequenceOutput, State>: Block, Expressible
         blocks.append(block.eraseToAnyBlock())
     }
     
-    public func run(_ input: SequenceInput, _ context: BlockContext<State>, _ completion: @escaping (BlockResult<SequenceOutput>) -> Void) {
+    public func run(_ input: SequenceInput, _ context: BlockContext, _ completion: @escaping (BlockResult<SequenceOutput>) -> Void) {
         guard blocks.count > 0 else { return completion(.failed(BlockError.emptyBlockSequence)) }
         
         run(at: 0, input, context, completion)
     }
     
-    private func run(at index: Int, _ nextInput: Any, _ context: BlockContext<State>, _ completion: @escaping (BlockResult<SequenceOutput>) -> Void) {
+    private func run(at index: Int, _ nextInput: Any, _ context: BlockContext, _ completion: @escaping (BlockResult<SequenceOutput>) -> Void) {
         if let block = blocks.value(at: index) {
-            block.run(nextInput, BlockContext(state: context.state as Any)) { result in
+            block.run(nextInput, BlockContext(state: context._state)) { result in
                 switch result {
                 case .done(let nextInput):
                     run(at: index + 1, nextInput, context, completion)
