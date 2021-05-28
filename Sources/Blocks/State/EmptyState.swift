@@ -1,2 +1,4 @@
 
-public struct EmptyState {}
+public struct EmptyState {
+    public init() {}
+}
