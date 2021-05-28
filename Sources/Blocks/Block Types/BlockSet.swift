@@ -25,32 +25,32 @@ public struct BlockSet<SequenceInput, SequenceOutput>: Block, ExpressibleByArray
         blocks.append(block.eraseToAnyBlock())
     }
     
-    public func run(_ input: SequenceInput, _ context: BlockContext, _ completion: @escaping (BlockResult<SequenceOutput>) -> Void) {
-        guard blocks.count > 0 else { return completion(.failed(BlockError.emptyBlockSequence)) }
+    public func run(_ input: SequenceInput, _ context: BlockContext, _ completor: Completor<SequenceOutput>) {
+        guard blocks.count > 0 else { return completor.failed(BlockError.emptyBlockSequence) }
         
-        run(at: 0, input, context, completion)
+        run(at: 0, input, context, completor)
     }
     
-    private func run(at index: Int, _ nextInput: Any, _ context: BlockContext, _ completion: @escaping (BlockResult<SequenceOutput>) -> Void) {
+    private func run(at index: Int, _ nextInput: Any, _ context: BlockContext, _ completor: Completor<SequenceOutput>) {
         if let block = blocks.value(at: index) {
             block.run(nextInput, BlockContext(state: context._state)) { result in
                 switch result {
                 case .done(let nextInput):
-                    run(at: index + 1, nextInput, context, completion)
+                    run(at: index + 1, nextInput, context, completor)
                 case .break(let output):
                     if let output = output as? SequenceOutput {
-                        completion(.done(output))
+                        completor.done(output)
                     } else {
-                        completion(.failed(BlockError.unmatchedOutputTypes))
+                        completor.failed(BlockError.unmatchedOutputTypes)
                     }
                 case .failed(let error):
-                    completion(.failed(error))
+                    completor.failed(error)
                 }
             }
         } else if let output = nextInput as? SequenceOutput {
-            completion(.done(output))
+            completor.done(output)
         } else {
-            completion(.failed(BlockError.unmatchedOutputTypes))
+            completor.failed(BlockError.unmatchedOutputTypes)
         }
     }
 }

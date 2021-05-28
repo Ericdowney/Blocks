@@ -21,6 +21,7 @@ final class BlockTests: XCTestCase {
         var state: CustomState = .init()
         var set: BlockSet<Int, String> {
             AddFour()
+            AddFour()
             AddStateValue()
             IntToString()
         }

@@ -2,17 +2,17 @@
 public extension Block {
     
     func eraseToAnyBlock() -> AnyBlock {
-        AnyBlock { input, context, completion in
-            guard let nextInput = input as? Input else { return completion(.failed(BlockError.unmatchedInputTypes)) }
+        AnyBlock { input, context, completor in
+            guard let nextInput = input as? Input else { return completor.failed(BlockError.unmatchedInputTypes) }
             
             run(nextInput, BlockContext(state: context._state)) { result in
                 switch result {
                 case .done(let output):
-                    completion(.done(output))
+                    completor.done(output)
                 case .break(let output):
-                    completion(.break(output))
+                    completor.break(output)
                 case .failed(let error):
-                    completion(.failed(error))
+                    completor.failed(error)
                 }
             }
         }
@@ -21,20 +21,20 @@ public extension Block {
 
 public extension Block where Input == Void {
     
-    func run(_ context: BlockContext, _ completion: @escaping Completion) throws {
+    func run(_ context: BlockContext, _ completion: @escaping (BlockResult<Output>) -> Void) throws {
         run((), context, completion)
     }
     
     func eraseToAnyVoidBlock() -> AnyBlock {
-        AnyBlock { input, context, completion in
+        AnyBlock { input, context, completor in
             run((), BlockContext(state: context._state)) { result in
                 switch result {
                 case .done(let output):
-                    completion(.done(output))
+                    completor.done(output)
                 case .break(let output):
-                    completion(.break(output))
+                    completor.break(output)
                 case .failed(let error):
-                    completion(.failed(error))
+                    completor.failed(error)
                 }
             }
         }

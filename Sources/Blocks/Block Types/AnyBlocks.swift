@@ -1,13 +1,13 @@
 
 public struct AnyBlock: Block {
     
-    private var block: (Any, BlockContext, @escaping (BlockResult<Any>) -> Void) -> Void
+    private var block: (Any, BlockContext, Completor<Any>) -> Void
     
-    public init(block: @escaping (Any, BlockContext, @escaping (BlockResult<Any>) -> Void) -> Void) {
+    public init(block: @escaping (Any, BlockContext, Completor<Any>) -> Void) {
         self.block = block
     }
     
-    public func run(_ input: Any, _ context: BlockContext, _ completion: @escaping (BlockResult<Any>) -> Void) {
-        block(input, context, completion)
+    public func run(_ input: Any, _ context: BlockContext, _ completor: Completor<Any>) {
+        block(input, context, completor)
     }
 }

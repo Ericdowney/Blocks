@@ -14,22 +14,30 @@ extension BlockGroup {
         run(input, completion)
     }
     
+    public func callAsFunction(input: Input, completor: Completor<Output>) {
+        run(input, completor)
+    }
+    
     public func run(_ input: Input, _ completion: @escaping (BlockResult<Output>) -> Void) {
         set.run(input, .init(state: state), completion)
     }
     
-    public func eraseToAnyBlock() -> AnyBlock {
-        AnyBlock { input, context, completion in
-            guard let nextInput = input as? Input else { return completion(.failed(BlockError.unmatchedInputTypes)) }
+    public func run(_ input: Input, _ completor: Completor<Output>) {
+        set.run(input, .init(state: state), completor)
+    }
+    
+    func eraseToAnyBlock() -> AnyBlock {
+        AnyBlock { input, context, completor in
+            guard let nextInput = input as? Input else { return completor.failed(BlockError.unmatchedInputTypes) }
             
             run(nextInput, state) { result in
                 switch result {
                 case .done(let output):
-                    completion(.done(output))
+                    completor.done(output)
                 case .break(let output):
-                    completion(.break(output))
+                    completor.break(output)
                 case .failed(let error):
-                    completion(.failed(error))
+                    completor.failed(error)
                 }
             }
         }
