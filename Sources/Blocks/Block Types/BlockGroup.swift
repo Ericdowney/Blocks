@@ -10,41 +10,24 @@ public protocol BlockGroup {
 
 extension BlockGroup {
     
-    public func callAsFunction(input: Input, completion: @escaping (BlockResult<Output>) -> Void) {
-        run(input, completion)
+    public func callAsFunction(input: Input) async throws -> Output {
+        try await set.run(input, .init(state: state))
     }
     
-    public func callAsFunction(input: Input, completor: Completor<Output>) {
-        run(input, completor)
-    }
-    
-    public func run(_ input: Input, _ completion: @escaping (BlockResult<Output>) -> Void) {
-        set.run(input, .init(state: state), completion)
-    }
-    
-    public func run(_ input: Input, _ completor: Completor<Output>) {
-        set.run(input, .init(state: state), completor)
+    public func run(_ input: Input) async throws -> Output {
+        try await set.run(input, .init(state: state))
     }
     
     func eraseToAnyBlock() -> AnyBlock {
-        AnyBlock { input, context, completor in
-            guard let nextInput = input as? Input else { return completor.failed(BlockError.unmatchedInputTypes) }
-            
-            run(nextInput, state) { result in
-                switch result {
-                case .done(let output):
-                    completor.done(output)
-                case .break(let output):
-                    completor.break(output)
-                case .failed(let error):
-                    completor.failed(error)
-                }
-            }
+        AnyBlock { input, context in
+            guard let nextInput = input as? Input else { throw BlockError.unmatchedInputTypes }
+
+            return try await run(nextInput, state)
         }
     }
     
-    private func run(_ input: Input, _ state: State, _ completion: @escaping (BlockResult<Output>) -> Void) {
-        set.run(input, .init(state: state), completion)
+    private func run(_ input: Input, _ state: State) async throws -> Output {
+        try await set.run(input, .init(state: state))
     }
 }
 
@@ -53,7 +36,7 @@ extension BlockGroup where State == EmptyState {
     public var state: EmptyState { .init() }
 }
 
-@_functionBuilder
+@resultBuilder
 public struct BlockSetBuilder {
     
     public static func buildBlock<B1: Block>(_ block1: B1) -> BlockSet<B1.Input, B1.Output> {

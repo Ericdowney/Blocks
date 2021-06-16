@@ -9,10 +9,8 @@ public struct Map<Input: Sequence, Output: Sequence>: Block {
         self.transform = transform
     }
     
-    public func run(_ input: Input, _ context: BlockContext, _ completor: Completor<[Output.Element]>) {
-        completor.done(
-            input.map(transform)
-        )
+    public func run(_ input: Input, _ context: BlockContext) async throws -> [Output.Element] {
+        input.map(transform)
     }
 }
 
@@ -24,10 +22,8 @@ public struct MapValue<Input, Output>: Block {
         self.map = map
     }
     
-    public func run(_ input: Input?, _ context: BlockContext, _ completor: Completor<Output?>) {
-        completor.done(
-            input.map(map)
-        )
+    public func run(_ input: Input?, _ context: BlockContext) async throws -> Output? {
+        input.map(map)
     }
 }
 
@@ -39,9 +35,7 @@ public struct CompactMap<Input: Sequence, Output: Sequence>: Block {
         self.transform = transform
     }
     
-    public func run(_ input: Input, _ context: BlockContext, _ completor: Completor<[Output.Element]>) {
-        completor.done(
-            input.compactMap(transform)
-        )
+    public func run(_ input: Input, _ context: BlockContext) async throws -> [Output.Element] {
+        input.compactMap(transform)
     }
 }

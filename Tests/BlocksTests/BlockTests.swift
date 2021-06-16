@@ -33,51 +33,31 @@ final class BlockTests: XCTestCase {
         }
     }
     
-    func test_testGroup1_whenValueIsTrue_shouldReturnCorrectResult() {
+    func test_testGroup1_whenValueIsTrue_shouldReturnCorrectResult() async throws {
         let subject = TestGroup1(value: true)
         
-        subject(input: 1) { result in
-            switch result {
-            case .break(_): XCTFail()
-            case .done(let value): XCTAssertEqual(value, 7)
-            case .failed(_): XCTFail()
-            }
-        }
+        let result = try await subject(input: 1)
+        XCTAssertEqual(result, 7)
     }
     
-    func test_testGroup1_whenValueIsFalse_shouldReturnCorrectResult() {
+    func test_testGroup1_whenValueIsFalse_shouldReturnCorrectResult() async throws {
         let subject = TestGroup1(value: false)
         
-        subject(input: 1) { result in
-            switch result {
-            case .break(_): XCTFail()
-            case .done(let value): XCTAssertEqual(value, 8)
-            case .failed(_): XCTFail()
-            }
-        }
+        let result = try await subject(input: 1)
+        XCTAssertEqual(result, 8)
     }
     
-    func test_testGroup2_shouldReturnCorrectResult() {
+    func test_testGroup2_shouldReturnCorrectResult() async throws {
         let subject = TestGroup2()
         
-        subject(input: 3) { result in
-            switch result {
-            case .break(_): XCTFail()
-            case .done(let value): XCTAssertEqual(value, "9")
-            case .failed(_): XCTFail()
-            }
-        }
+        let result = try await subject(input: 3)
+        XCTAssertEqual(result, "9")
     }
     
-    func test_testGroup3_shouldReturnCorrectResult() {
+    func test_testGroup3_shouldReturnCorrectResult() async throws {
         let subject = TestGroup3()
         
-        subject(input: 3) { result in
-            switch result {
-            case .break(_): XCTFail()
-            case .done(let value): XCTAssertEqual(value, "15")
-            case .failed(_): XCTFail()
-            }
-        }
+        let result = try await subject(input: 3)
+        XCTAssertEqual(result, "15")
     }
 }

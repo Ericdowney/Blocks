@@ -25,32 +25,20 @@ public struct BlockSet<SequenceInput, SequenceOutput>: Block, ExpressibleByArray
         blocks.append(block.eraseToAnyBlock())
     }
     
-    public func run(_ input: SequenceInput, _ context: BlockContext, _ completor: Completor<SequenceOutput>) {
-        guard blocks.count > 0 else { return completor.failed(BlockError.emptyBlockSequence) }
+    public func run(_ input: SequenceInput, _ context: BlockContext) async throws -> SequenceOutput {
+        guard blocks.count > 0 else { throw BlockError.emptyBlockSequence }
         
-        run(at: 0, input, context, completor)
+        return try await run(at: 0, previousOutput: input, context)
     }
     
-    private func run(at index: Int, _ nextInput: Any, _ context: BlockContext, _ completor: Completor<SequenceOutput>) {
+    private func run(at index: Int, previousOutput nextInput: Any, _ context: BlockContext) async throws -> SequenceOutput {
         if let block = blocks.value(at: index) {
-            block.run(nextInput, BlockContext(state: context._state)) { result in
-                switch result {
-                case .done(let nextInput):
-                    run(at: index + 1, nextInput, context, completor)
-                case .break(let output):
-                    if let output = output as? SequenceOutput {
-                        completor.done(output)
-                    } else {
-                        completor.failed(BlockError.unmatchedOutputTypes)
-                    }
-                case .failed(let error):
-                    completor.failed(error)
-                }
-            }
+            return try await run(at: index + 1,
+                                 previousOutput: try await block.run(nextInput, context),
+                                 context)
         } else if let output = nextInput as? SequenceOutput {
-            completor.done(output)
-        } else {
-            completor.failed(BlockError.unmatchedOutputTypes)
+            return output
         }
+        throw BlockError.unmatchedOutputTypes
     }
 }
