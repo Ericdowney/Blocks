@@ -1,5 +1,5 @@
 
-public final class BlockContext {
+public final actor BlockContext {
     
     // MARK: - Properties
     

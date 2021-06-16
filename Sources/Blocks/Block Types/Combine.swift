@@ -1,7 +1,7 @@
 
 import Foundation
 
-public struct Combine<B1: Block, B2: Block>: Block where B1.Input == B2.Input {
+public struct Combine<B1: Block, B2: Block, Element>: Block where B1.Input == B2.Input, B1.Output == B2.Output, B1.Output == Array<Element> {
     public typealias Input = B1.Input
     
     var block1: B1
@@ -12,10 +12,10 @@ public struct Combine<B1: Block, B2: Block>: Block where B1.Input == B2.Input {
         self.block2 = block2
     }
     
-    public func run(_ input: B1.Input, _ context: BlockContext) async throws -> (B1.Output, B2.Output) {
+    public func run(_ input: B1.Input, _ context: BlockContext) async throws -> [Element] {
         async let output1 = block1.run(input, context)
         async let output2 = block2.run(input, context)
         
-        return try await (output1, output2)
+        return try await output1 + output2
     }
 }

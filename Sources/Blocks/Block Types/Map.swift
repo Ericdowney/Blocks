@@ -14,6 +14,19 @@ public struct Map<Input: Sequence, Output: Sequence>: Block {
     }
 }
 
+public struct Transform<Input, Output>: Block {
+    
+    var transform: (Input) -> Output?
+    
+    public init(transform: @escaping (Input) -> Output?) {
+        self.transform = transform
+    }
+    
+    public func run(_ input: Input, _ context: BlockContext) async throws -> Output? {
+        transform(input)
+    }
+}
+
 public struct MapValue<Input, Output>: Block {
     
     var map: (Input) -> Output

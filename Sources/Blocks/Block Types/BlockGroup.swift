@@ -31,6 +31,17 @@ extension BlockGroup {
     }
 }
 
+extension BlockGroup where Input == Void {
+    
+    public func callAsFunction() async throws -> Output {
+        try await set.run((), .init(state: state))
+    }
+    
+    public func run() async throws -> Output {
+        try await set.run((), .init(state: state))
+    }
+}
+
 extension BlockGroup where State == EmptyState {
     
     public var state: EmptyState { .init() }

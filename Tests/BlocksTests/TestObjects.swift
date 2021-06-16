@@ -40,7 +40,8 @@ struct AddFive: Block {
 struct AddStateValue: Block {
     
     func run(_ input: Int, _ context: BlockContext) async throws -> Int {
-        input + context.state(CustomState.self).value
+        let stateValue = await context.state(CustomState.self).value
+        return input + stateValue
     }
 }
 

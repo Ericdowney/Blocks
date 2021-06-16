@@ -28,17 +28,15 @@ public struct BlockSet<SequenceInput, SequenceOutput>: Block, ExpressibleByArray
     public func run(_ input: SequenceInput, _ context: BlockContext) async throws -> SequenceOutput {
         guard blocks.count > 0 else { throw BlockError.emptyBlockSequence }
         
-        return try await run(at: 0, previousOutput: input, context)
-    }
-    
-    private func run(at index: Int, previousOutput nextInput: Any, _ context: BlockContext) async throws -> SequenceOutput {
-        if let block = blocks.value(at: index) {
-            return try await run(at: index + 1,
-                                 previousOutput: try await block.run(nextInput, context),
-                                 context)
-        } else if let output = nextInput as? SequenceOutput {
-            return output
+        var nextInput: Any = input
+        var nextOutput: Any?
+        for block in blocks {
+            let output = try await block.run(nextInput, context)
+            nextInput = output
+            nextOutput = output
         }
-        throw BlockError.unmatchedOutputTypes
+        
+        guard let output = nextOutput as? SequenceOutput else { throw BlockError.unmatchedOutputTypes }
+        return output
     }
 }
