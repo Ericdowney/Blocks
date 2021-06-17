@@ -9,6 +9,9 @@ final class CombineTests: XCTestCase {
         }
     }
     struct TestGroup1: BlockGroup {
+        typealias Input = Void
+        typealias Output = [Int]
+        
         var set: BlockSet<Void, [Int]> {
             Combine(block1: SequenceBlock(), block2: SequenceBlock())
         }

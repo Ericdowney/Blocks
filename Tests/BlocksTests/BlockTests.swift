@@ -4,6 +4,9 @@ import XCTest
 
 final class BlockTests: XCTestCase {
     struct TestGroup1: BlockGroup {
+        typealias Input = Int
+        typealias Output = Int
+        
         var value: Bool
         var state: CustomState = .init()
         var set: BlockSet<Int, Int> {
@@ -18,6 +21,9 @@ final class BlockTests: XCTestCase {
         }
     }
     struct TestGroup2: BlockGroup {
+        typealias Input = Int
+        typealias Output = String
+        
         var state: CustomState = .init()
         var set: BlockSet<Int, String> {
             AddFour()
@@ -26,9 +32,24 @@ final class BlockTests: XCTestCase {
         }
     }
     struct TestGroup3: BlockGroup {
+        typealias Input = Int
+        typealias Output = String
+        
         var state: CustomState = .init()
         var set: BlockSet<Int, String> {
             TestGroup1(value: true)
+            TestGroup2()
+        }
+    }
+    struct TestGroup4: BlockGroup {
+        typealias Input = Int
+        typealias Output = String
+        
+        var state: CustomState = .init()
+        var set: BlockSet<Int, String> {
+            TestGroup1(value: true)
+            TestGroup1(value: false)
+            AddFive()
             TestGroup2()
         }
     }
@@ -59,5 +80,12 @@ final class BlockTests: XCTestCase {
         
         let result = try await subject(input: 3)
         XCTAssertEqual(result, "15")
+    }
+    
+    func test_testGroup4_shouldReturnCorrectResult() async throws {
+        let subject = TestGroup4()
+        
+        let result = try await subject(input: 3)
+        XCTAssertEqual(result, "27")
     }
 }

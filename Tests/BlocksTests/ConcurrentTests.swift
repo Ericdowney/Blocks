@@ -4,6 +4,9 @@ import Blocks
 
 final class ConcurrentTests: XCTestCase {
     struct TestGroup1: BlockGroup {
+        typealias Input = Int
+        typealias Output = Int?
+        
         var set: BlockSet<Int, Int?> {
             Concurrent(AddOne(), AddTwo())
             Transform { (input: (Int, Int)) in

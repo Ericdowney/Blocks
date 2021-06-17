@@ -1,21 +1,23 @@
 
-public protocol BlockGroup {
-    associatedtype Input
-    associatedtype Output
+public protocol BlockGroup: Block {
     associatedtype State
     
     var state: State { get }
-    @BlockSetBuilder var set: BlockSet<Input, Output> { get }
+    @BlockSetBuilder var set: BlockSet<Self.Input, Self.Output> { get }
 }
 
 extension BlockGroup {
     
     public func callAsFunction(input: Input) async throws -> Output {
-        try await set.run(input, .init(state: state))
+        try await run(input, .init(state: state))
     }
     
     public func run(_ input: Input) async throws -> Output {
         try await set.run(input, .init(state: state))
+    }
+    
+    public func run(_ input: Input, _ context: BlockContext) async throws -> Output {
+        try await set.run(input, context)
     }
     
     func eraseToAnyBlock() -> AnyBlock {
@@ -27,7 +29,7 @@ extension BlockGroup {
     }
     
     private func run(_ input: Input, _ state: State) async throws -> Output {
-        try await set.run(input, .init(state: state))
+        try await run(input, .init(state: state))
     }
 }
 
