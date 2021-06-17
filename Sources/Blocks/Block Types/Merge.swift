@@ -10,7 +10,7 @@ public struct Merge<B1: Block, B2: Block>: Block where B1.Input == Void, B2.Inpu
     
     // MARK: - Lifecycle
     
-    init(_ block1: B1, _ block2: B2) {
+    public init(_ block1: B1, _ block2: B2) {
         self.block1 = block1
         self.block2 = block2
     }
@@ -34,7 +34,7 @@ public struct MergeLeft<B1: Block, B2: Block>: Block where B2.Input == Void {
     
     // MARK: - Lifecycle
     
-    init(_ block1: B1, _ block2: B2) {
+    public init(_ block1: B1, _ block2: B2) {
         self.block1 = block1
         self.block2 = block2
     }
@@ -58,7 +58,7 @@ public struct MergeRight<B1: Block, B2: Block>: Block where B1.Input == Void {
     
     // MARK: - Lifecycle
     
-    init(_ block1: B1, _ block2: B2) {
+    public init(_ block1: B1, _ block2: B2) {
         self.block1 = block1
         self.block2 = block2
     }
